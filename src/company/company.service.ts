@@ -1,4 +1,3 @@
-// src/companies/company.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Company } from './schemas/company.schema';
@@ -8,9 +7,7 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 
 @Injectable()
 export class CompanyService {
-  constructor(
-    @InjectModel(Company.name) private companyModel: Model<Company>,
-  ) {}
+  constructor(@InjectModel(Company.name) private companyModel: Model<Company>) {}
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
     const createdCompany = new this.companyModel(createCompanyDto);
@@ -21,32 +18,33 @@ export class CompanyService {
     return this.companyModel.find().exec();
   }
 
-  async findOne(id: string): Promise<Company> {
-    const company = await this.companyModel.findById(id).exec();
+  async findOneByName(name: string): Promise<Company> {
+    const company = await this.companyModel.findOne({ name }).exec();
     if (!company) {
-      throw new NotFoundException('Company not found');
+      throw new NotFoundException(`Company with name "${name}" not found`);
     }
     return company;
   }
 
-  async update(
-    id: string,
+  async updateByName(
+    name: string,
     updateCompanyDto: UpdateCompanyDto,
   ): Promise<Company> {
     const updatedCompany = await this.companyModel
-      .findByIdAndUpdate(id, updateCompanyDto, { new: true })
+      .findOneAndUpdate({ name }, updateCompanyDto, { new: true })
       .exec();
     if (!updatedCompany) {
-      throw new NotFoundException('Company not found');
+      throw new NotFoundException(`Company with name "${name}" not found`);
     }
     return updatedCompany;
   }
-  async remove(id: string): Promise<Company> {
-    const company = await this.companyModel.findById(id).exec();
+
+  async removeByName(name: string): Promise<Company> {
+    const company = await this.companyModel.findOne({ name }).exec();
     if (!company) {
-      throw new NotFoundException('Company not found');
+      throw new NotFoundException(`Company with name "${name}" not found`);
     }
     await company.deleteOne();
-    return company.id;
+    return company;
   }
 }

@@ -1,46 +1,52 @@
-// src/companies/company.controller.ts
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
-} from '@nestjs/common';
-import { CompanyService } from './company.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Company } from './schemas/company.schema';
+import { Model } from 'mongoose';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 
-@Controller('companies')
-export class CompanyController {
-  constructor(private readonly companyService: CompanyService) {}
+@Injectable()
+export class CompanyService {
+  constructor(
+    @InjectModel(Company.name) private companyModel: Model<Company>,
+  ) {}
 
-  @Post()
-  async create(@Body() createCompanyDto: CreateCompanyDto) {
-    return this.companyService.create(createCompanyDto);
+  async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
+    const createdCompany = new this.companyModel(createCompanyDto);
+    return createdCompany.save();
   }
 
-  @Get()
-  async findAll() {
-    return this.companyService.findAll();
+  async findAll(): Promise<Company[]> {
+    return this.companyModel.find().exec();
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.companyService.findOne(id);
+  async findOneByName(name: string): Promise<Company> {
+    const company = await this.companyModel.findOne({ name }).exec();
+    if (!company) {
+      throw new NotFoundException(`Company with name "${name}" not found`);
+    }
+    return company;
   }
 
-  @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateCompanyDto: UpdateCompanyDto,
-  ) {
-    return this.companyService.update(id, updateCompanyDto);
+  async updateByName(
+    name: string,
+    updateCompanyDto: UpdateCompanyDto,
+  ): Promise<Company> {
+    const updatedCompany = await this.companyModel
+      .findOneAndUpdate({ name }, updateCompanyDto, { new: true })
+      .exec();
+    if (!updatedCompany) {
+      throw new NotFoundException(`Company with name "${name}" not found`);
+    }
+    return updatedCompany;
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.companyService.remove(id);
+  async removeByName(name: string): Promise<Company> {
+    const company = await this.companyModel.findOne({ name }).exec();
+    if (!company) {
+      throw new NotFoundException(`Company with name "${name}" not found`);
+    }
+    await company.deleteOne();
+    return company;
   }
 }
