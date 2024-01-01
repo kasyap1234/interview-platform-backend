@@ -21,10 +21,10 @@ export class QuestionService {
     return this.questionModel.find().exec();
   }
 
-  async findOne(id: string): Promise<Question> {
-    const question = await this.questionModel.findById(id).exec();
+  async findOneById(_id: string): Promise<Question> {
+    const question = await this.questionModel.findById(_id).exec();
     if (!question) {
-      throw new NotFoundException('Question not found');
+      throw new NotFoundException(`Question with ID "${_id}" not found`);
     }
     return question;
   }

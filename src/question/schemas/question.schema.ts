@@ -4,6 +4,8 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Question extends Document {
+  @Prop()
+  id: string;
   @Prop({ required: true })
   content: string;
 

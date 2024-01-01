@@ -4,8 +4,12 @@ import { IsString, IsNotEmpty } from 'class-validator';
 export class CreateQuestionDto {
   @IsString()
   @IsNotEmpty()
-  readonly content: string;
+  id: string;
 
   @IsString()
-  readonly company: string;
+  @IsNotEmpty()
+  content: string;
+
+  @IsString()
+   company: string;
 }

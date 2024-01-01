@@ -36,12 +36,11 @@ export class QuestionController {
   async findAll() {
     return this.questionService.findAll();
   }
-
+ 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.questionService.findOne(id);
+  async findOne(@Param('id') _id: string) {
+    return this.questionService.findOneById(_id);
   }
-
   @Put(':id')
   async update(
     @Param('id') id: string,
