@@ -41,6 +41,17 @@ export class QuestionService {
     }
     return updatedQuestion;
   }
+  async findByCompany(company: string): Promise<Question[]> {
+    const questions = await this.questionModel
+      .find({ company: company })
+      .exec();
+    if (!questions || questions.length === 0) {
+      throw new NotFoundException(
+        `No questions found for company "${company}"`,
+      );
+    }
+    return questions;
+  }
   async remove(id: string): Promise<Question> {
     const question = await this.questionModel.findById(id).exec();
     if (!question) {

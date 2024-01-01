@@ -53,4 +53,8 @@ export class QuestionController {
   async remove(@Param('id') id: string) {
     return this.questionService.remove(id);
   }
+  @Get(':company')
+  async findByCompany(@Param('company') company: string) {
+    return this.questionService.findByCompany(company);
+  }
 }
